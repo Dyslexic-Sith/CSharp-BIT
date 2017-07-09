@@ -1,0 +1,78 @@
+﻿<Window x:Class="BITClientServer.CoOrdinators"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BITClientServer"
+        mc:Ignorable="d"
+        Title="CoOrdinators" Height="696.549" Width="937.611"
+        WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" 
+        >
+    <Grid>
+        <Image x:Name="image" Height="87" Margin="184,10,196,0" VerticalAlignment="Top" Source="bitserviceslogo.jpg" Stretch="UniformToFill"/>
+
+        <Label x:Name="label" Content="First Name:" HorizontalAlignment="Left" Margin="21,474,0,0" VerticalAlignment="Top"/>
+
+        <TextBox x:Name="txtCoOrdinatorFName" DataContext="{Binding ElementName=lvCoOrdinators, Path=SelectedItem}" Text="{Binding Path=EmployeeFName, Mode=OneWay}" HorizontalAlignment="Left" Height="23" Margin="114,477,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Background="#FFECE8E8"/>
+
+        <Label x:Name="label1" Content="Last Name:" HorizontalAlignment="Left" Margin="21,502,0,0" VerticalAlignment="Top"/>
+
+        <TextBox x:Name="txtCoOrdinatorLName" DataContext="{Binding ElementName=lvCoOrdinators, Path=SelectedItem}" Text="{Binding Path=EmployeeLName, Mode=OneWay}" HorizontalAlignment="Left" Height="23" Margin="114,505,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Background="#FFECE8E8"/>
+
+        <Label x:Name="label1_Copy"  Content="Phone :" HorizontalAlignment="Left" Margin="322,474,0,0" VerticalAlignment="Top"/>
+
+        <TextBox x:Name="txtCoOrdinatorPhone" DataContext="{Binding ElementName=lvCoOrdinators, Path=SelectedItem}" Text="{Binding Path=EmployeePhone, Mode=OneWay}" HorizontalAlignment="Left" Height="23" Margin="415,477,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Background="#FFECE8E8"/>
+
+        <Label x:Name="label1_Copy1" Content="Email :" HorizontalAlignment="Left" Margin="322,502,0,0" VerticalAlignment="Top"/>
+
+        <TextBox x:Name="txtCoOrdinatorEmail" DataContext="{Binding ElementName=lvCoOrdinators, Path=SelectedItem}" Text="{Binding Path=EmployeeEmail, Mode=OneWay}" HorizontalAlignment="Left" Height="23" Margin="415,505,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="185" Background="#FFECE8E8"/>
+
+        <Label x:Name="label1_Copy2" Content="Unit/Suite :" HorizontalAlignment="Left" Margin="619,471,0,0" VerticalAlignment="Top"/>
+
+        <TextBox x:Name="txtCoOrdinatorUnit" DataContext="{Binding ElementName=lvCoOrdinators, Path=SelectedItem}" Text="{Binding Path=EmployeeLocationUnit, Mode=OneWay}" HorizontalAlignment="Left" Height="23" Margin="712,474,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Background="#FFECE8E8"/>
+
+        <Label x:Name="label1_Copy3" Content="Street :" HorizontalAlignment="Left" Margin="619,499,0,0" VerticalAlignment="Top"/>
+
+        <TextBox x:Name="txtCoOrdinatorStreet" DataContext="{Binding ElementName=lvCoOrdinators, Path=SelectedItem}" Text="{Binding Path=EmployeeLocationStreet, Mode=OneWay}"  HorizontalAlignment="Left" Height="23" Margin="712,502,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="185" Background="#FFECE8E8"/>
+
+        <Label x:Name="label1_Copy4" Content="Suburb :" HorizontalAlignment="Left" Margin="21,530,0,0" VerticalAlignment="Top"/>
+
+        <TextBox x:Name="txtCoOrdinatorSuburb" DataContext="{Binding ElementName=lvCoOrdinators, Path=SelectedItem}" Text="{Binding Path=EmployeeLocationSuburb, Mode=OneWay}"  HorizontalAlignment="Left" Height="23" Margin="114,533,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="185" Background="#FFECE8E8"/>
+
+        <Label x:Name="label1_Copy5" Content="Postcode :" HorizontalAlignment="Left" Margin="322,530,0,0" VerticalAlignment="Top"/>
+
+        <TextBox x:Name="txtCoOrdinatorPostcode" DataContext="{Binding ElementName=lvCoOrdinators, Path=SelectedItem}" Text="{Binding Path=EmployeeLocationPostcode, Mode=OneWay}"  HorizontalAlignment="Left" Height="23" Margin="415,533,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Background="#FFECE8E8"/>
+
+        <Label x:Name="label1_Copy6" Content="State :" HorizontalAlignment="Left" Margin="620,530,0,0" VerticalAlignment="Top"/>
+
+        <TextBox x:Name="txtCoOrdinatorState" DataContext="{Binding ElementName=lvCoOrdinators, Path=SelectedItem}" Text="{Binding Path=EmployeeLocationState, Mode=OneWay}"  HorizontalAlignment="Left" Height="23" Margin="713,533,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="184" Background="#FFECE8E8"/>
+
+        <Button x:Name="btnCoOrdinatorUpdate" Content="Update" HorizontalAlignment="Left" Margin="21,589,0,0" VerticalAlignment="Top" Width="75" Click="btnCoOrdinatorUpdate_Click"/>
+        <Button x:Name="btnCoOrdinatorAdd" Content="Add" HorizontalAlignment="Left" Margin="21,624,0,0" VerticalAlignment="Top" Width="75" Click="btnCoOrdinatorAdd_Click"/>
+        <Button x:Name="btnCoOrdinatorDelete" Content="Delete" HorizontalAlignment="Left" Margin="114,589,0,0" VerticalAlignment="Top" Width="75" Click="btnCoOrdinatorDelete_Click"/>
+        <Button x:Name="btnCoOrdinatorClear" Content="Clear Fields" HorizontalAlignment="Left" Margin="114,624,0,0" VerticalAlignment="Top" Width="75" Click="btnCoOrdinatorClear_Click"/>
+        <Button x:Name="btnQuit" Content="Log Out" HorizontalAlignment="Left" Margin="816,624,0,0" VerticalAlignment="Top" Width="75" Click="btnQuit_Click"/>
+        <Button x:Name="btnCoOrdinatorGoBack" Content="Go Back" HorizontalAlignment="Left" Margin="712,624,0,0" VerticalAlignment="Top" Width="75" Click="btnCoOrdinatorGoBack_Click"/>
+        <ListView Margin="10,102,12,228" x:Name="lvCoOrdinators" ItemsSource="{Binding Path=coordinatorCollection}" MinWidth="250" MinHeight="100" Background="#FFEAEDFD">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Co-Ordinator ID" DisplayMemberBinding="{Binding CoordinatorID}"/>
+                    <GridViewColumn Header="First Name" DisplayMemberBinding="{Binding EmployeeFName}"/>
+                    <GridViewColumn Header="Last Name" DisplayMemberBinding="{Binding EmployeeLName}"/>
+                    <GridViewColumn Header="Phone" DisplayMemberBinding="{Binding EmployeePhone}"/>
+                    <GridViewColumn Header="Email" DisplayMemberBinding="{Binding EmployeeEmail}"/>
+                    <GridViewColumn Header="Unit/Suite" DisplayMemberBinding="{Binding EmployeeLocationUnit}"/>
+                    <GridViewColumn Header="Street Address" DisplayMemberBinding="{Binding EmployeeLocationStreet}"/>
+                    <GridViewColumn Header="Suburb" DisplayMemberBinding="{Binding EmployeeLocationSuburb}"/>
+                    <GridViewColumn Header="Postcode" DisplayMemberBinding="{Binding EmployeeLocationPostcode}"/>
+                    <GridViewColumn Header="State" DisplayMemberBinding="{Binding EmployeeLocationState}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="322,564,0,0" TextWrapping="Wrap" Text="Username:" VerticalAlignment="Top"/>
+        <TextBlock x:Name="textBlock_Copy" HorizontalAlignment="Left" Margin="626,564,0,0" TextWrapping="Wrap" Text="Password:" VerticalAlignment="Top"/>
+        <TextBox x:Name="txtBxUsername" DataContext="{Binding ElementName=lvCoOrdinators, Path=SelectedItem}" Text="{Binding Path=EmployeeUsername, Mode=OneWay}" HorizontalAlignment="Left" Height="23" Margin="415,561,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="185" Background="#FFECE8E8"/>
+        <TextBox x:Name="txtBxPassword" DataContext="{Binding ElementName=lvCoOrdinators, Path=SelectedItem}" Text="{Binding Path=EmployeePassword, Mode=OneWay}" HorizontalAlignment="Left" Height="23" Margin="713,561,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="184" Background="#FFECE8E8"/>
+
+    </Grid>
+</Window>

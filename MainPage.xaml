@@ -1,0 +1,38 @@
+﻿<Window x:Class="BITClientServer.MainPage"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BITClientServer"
+        mc:Ignorable="d"
+        Title="MainPage" Height="324" Width="534"
+        WindowStartupLocation="CenterScreen" 
+        >
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Button x:Name="btnClose" Content="Log Out" Grid.Column="4" HorizontalAlignment="Left" Margin="11,15,0,0" Grid.Row="5" VerticalAlignment="Top" Width="78" Click="btnClose_Click"/>
+        <Button x:Name="btnContractors" Content="Contractors" Grid.Column="1" Margin="0,21,0,0" Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Width="100" Click="btnContractors_Click" Height="26"/>
+        <Button x:Name="btnClients" Content="Clients" Grid.Column="2" HorizontalAlignment="Left" Margin="69,20,0,0" Grid.Row="4" VerticalAlignment="Top" Width="100" Click="btnClients_Click" Grid.ColumnSpan="2" Height="26"/>
+        <Button x:Name="btnCoOrdinators" Content="Co-Ordinators" Grid.Column="1" HorizontalAlignment="Right" Margin="0,20,72,0" Grid.Row="4" VerticalAlignment="Top" Width="100" Click="btnCoOrdinators_Click" Grid.ColumnSpan="2" Height="26"/>
+        <Button x:Name="btnAddNewSkills" Content="Add New Skills" Grid.Column="2" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Width="100" Click="btnAddNewSkills_Click" Height="26" Margin="0,41,0,0" Grid.RowSpan="2"/>
+        <Button x:Name="btnNewJobRequest" Content="Add New Job" HorizontalAlignment="Left" Margin="0,21,0,0" Grid.Row="3" VerticalAlignment="Top" Width="100" Click="btnNewJobRequest_Click" Grid.Column="1" Height="26"/>
+        <Image x:Name="bitserviceslogo_jpg" Margin="82,0,82,34" Source="bitserviceslogo.jpg" Stretch="Fill" Grid.RowSpan="2" Grid.ColumnSpan="5"/>
+        <Button x:Name="btnAssignJob" Content="Assign Jobs" Grid.Column="3" HorizontalAlignment="Left" Margin="0,21,0,0" Grid.Row="3" VerticalAlignment="Top" Width="100" RenderTransformOrigin="0.153,-0.168" Click="btnAssignJob_Click" Height="26"/>
+        <Button x:Name="btnViewJobs" Content="View Jobs" Grid.Column="3" HorizontalAlignment="Left" Margin="0,21,0,0" Grid.Row="2" VerticalAlignment="Top" Width="100" Click="btnViewJobs_Click" Height="26"/>
+
+    </Grid>
+</Window>

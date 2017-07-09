@@ -1,0 +1,629 @@
+
+DROP DATABASE IF EXISTS bitservices;
+CREATE DATABASE bitservices;
+USE bitservices;
+
+CREATE TABLE Employee(
+	employeeID							INT PRIMARY KEY AUTO_INCREMENT,
+	employeeFirstName				VARCHAR(50) NOT NULL,
+	employeeLastName				VARCHAR(50) NOT NULL,
+	employeePhone						VARCHAR(20) NOT NULL,
+	employeeEmail						VARCHAR(60) NOT NULL,
+	employeeAddressUnit			VARCHAR(10),
+	employeeAddressStreet		VARCHAR(60) NOT NULL,
+	employeeAddressSuburb		VARCHAR(30) NOT NULL,
+	employeeAddressPostcode	VARCHAR(10) NOT NULL,
+	employeeAddressState		VARCHAR(30) NOT NULL,
+	status									INT NOT NULL
+	);
+
+
+CREATE TABLE Coordinator(
+	coordinatorID			INT,
+    CONSTRAINT coordinator_PK PRIMARY KEY (coordinatorID),
+    CONSTRAINT coordinator_FK FOREIGN KEY (coordinatorID) REFERENCES Employee(employeeID)
+);
+
+
+CREATE TABLE Contractor(
+	contractorID			INT,
+    CONSTRAINT contractor_PK PRIMARY KEY (contractorID),
+    CONSTRAINT contractor_FK FOREIGN KEY (contractorID) REFERENCES Employee(employeeID)
+);
+
+
+CREATE TABLE Administrator(
+	administratorID			INT,
+    CONSTRAINT administrator_PK PRIMARY KEY (administratorID),
+    CONSTRAINT administrator_FK FOREIGN KEY (administratorID) REFERENCES Employee(employeeID)
+);
+
+
+CREATE TABLE Login(
+	employeeID				INT,
+	username					VARCHAR(30) NOT NULL,
+	loginPassword			VARCHAR(30) NOT NULL,
+    CONSTRAINT login_PK PRIMARY KEY (employeeID),
+    CONSTRAINT login_FK FOREIGN KEY (employeeID) REFERENCES Employee(employeeID)
+);
+
+
+CREATE TABLE Days(
+	dayName					VARCHAR(10) PRIMARY KEY,
+	dayNumber				INT
+);
+
+CREATE TABLE Shifts(
+	shiftID								INT PRIMARY KEY AUTO_INCREMENT,
+	dayName								VARCHAR(10),
+	morningOrAfternoon		VARCHAR(10) NOT NULL,
+	shiftDescription			VARCHAR(100) NOT NULL,
+	startTime							TIME NOT NULL,
+	endTime								TIME NOT NULL,
+	otherShiftDetails			VARCHAR(100),
+    CONSTRAINT shifts_FK FOREIGN KEY (dayName) REFERENCES Days(dayName)
+);
+
+CREATE TABLE Roster(
+	shiftID						INT,
+	contractorID			INT,
+	rosterDate				DATE,
+	coordinatorID			INT,
+	attended					CHAR NOT NULL,
+	comments					VARCHAR(200),
+
+	CONSTRAINT Roster_PK PRIMARY KEY (shiftID, contractorID, rosterDate),
+    CONSTRAINT roster_FK1 FOREIGN KEY(shiftID) REFERENCES Shifts(shiftID),
+    CONSTRAINT roster_FK2 FOREIGN KEY (contractorID) REFERENCES Contractor(contractorID),
+    CONSTRAINT roster_FK3 FOREIGN KEY (coordinatorID) REFERENCES CoOrdinator(coordinatorID)
+);
+
+CREATE TABLE Client(
+	clientID							INT PRIMARY KEY AUTO_INCREMENT,
+	clientFirstName				VARCHAR(50) NOT NULL,
+	clientLastName				VARCHAR(50) NOT NULL,
+	clientPhone						VARCHAR(20) NOT NULL,
+	clientEmail						VARCHAR(60) NOT NULL,
+	clientFax							VARCHAR(20),
+	clientBusinessName		VARCHAR(100),
+	status								INT NOT NULL
+);
+
+CREATE TABLE ClientLocation(
+	clientLocationID				INT PRIMARY KEY AUTO_INCREMENT,
+	clientID								INT,
+	clientLocationUnit			VARCHAR(10),
+	clientLocationStreet		VARCHAR(60) NOT NULL,
+	clientLocationSuburb		VARCHAR(30) NOT NULL,
+	clientLocationPostcode	VARCHAR(10) NOT NULL,
+	clientLocationState			VARCHAR(30) NOT NULL,
+	clientLocationDetails		VARCHAR(500),
+	isPrimary								INT NOT NULL,
+    CONSTRAINT clientLocation_FK FOREIGN KEY(clientID) REFERENCES Client(clientID)
+);
+
+CREATE TABLE ClientLogin(
+	clientID		INT PRIMARY KEY,
+	clientUsername		VARCHAR(60) NOT NULL,
+	clientPassword		VARCHAR(60) NOT NULL,
+	CONSTRAINT clientLogin_FK FOREIGN KEY(clientID) REFERENCES Client(clientID)
+);
+
+CREATE TABLE Skills(
+	skillsID						INT PRIMARY KEY AUTO_INCREMENT,
+	skillsTitle					VARCHAR(30) NOT NULL,
+	skillsDescription		VARCHAR(500) NOT NULL,
+	status							INT NOT NULL
+);
+
+CREATE TABLE ContractorSkills(
+	skillsID					INT,
+	contractorID			INT,
+	status						INT NOT NULL,
+
+	CONSTRAINT CS_PK PRIMARY KEY (skillsID, contractorID),
+    CONSTRAINT CS_FK1 FOREIGN KEY(skillsID) REFERENCES Skills(skillsID),
+    CONSTRAINT CS_FK2 FOREIGN KEY(contractorID) REFERENCES Contractor(contractorID)
+);
+
+CREATE TABLE PayRate(
+	payRateID							INT PRIMARY KEY AUTO_INCREMENT,
+	payRateDescription		VARCHAR(100),
+	payRateDollars				INT NOT NULL
+);
+
+CREATE TABLE JobRequest(
+	jobRequestID				INT PRIMARY KEY AUTO_INCREMENT,
+	clientID						INT,
+	clientLocationID		INT,
+	coordinatorID				INT,
+	contractorID				INT,
+	skillsID						INT,
+	jobDescription			VARCHAR(500) NOT NULL,
+	jobEntryDate				DATE NOT NULL,
+	jobRequiredDate			DATE NOT NULL,
+	jobCompletedDate		DATE,
+	status							VARCHAR(25) NOT NULL,
+    CONSTRAINT JR_FK1 FOREIGN KEY(clientID) REFERENCES Client(clientID),
+    CONSTRAINT JR_FK2 FOREIGN KEY(clientLocationID) REFERENCES ClientLocation(clientLocationID),
+    CONSTRAINT JR_FK3 FOREIGN KEY(coordinatorID) REFERENCES Coordinator(coordinatorID),
+    CONSTRAINT JR_FK4 FOREIGN KEY(skillsID) REFERENCES Skills(skillsID),
+		CONSTRAINT JR_FK5 FOREIGN KEY(contractorID) REFERENCES Contractor(contractorID)
+);
+
+CREATE TABLE Feedback(
+	feedbackID							INT PRIMARY KEY AUTO_INCREMENT,
+	jobRequestID						INT,
+	feedbackDescription			VARCHAR(500) NOT NULL,
+	feedbackGiverType				VARCHAR(20) NOT NULL,
+	feedbackGiverFirstName	VARCHAR(50) NOT NULL,
+	feedbackGiverLastName		VARCHAR(50) NOT NULL,
+	feedbackDate						DATE NOT NULL,
+	extraComments						VARCHAR(200),
+    CONSTRAINT feed_FK FOREIGN KEY(jobRequestID) REFERENCES JobRequest(jobRequestID)
+);
+
+CREATE TABLE BillingInfo(
+	billingInfoID			INT PRIMARY KEY AUTO_INCREMENT,
+	jobRequestID			INT,
+	payRateID					INT,
+	billingDate				DATE NOT NULL,
+	billingHours			INT NOT NULL,
+	kmsDriven					INT NOT NULL,
+    CONSTRAINT billing_FK1 FOREIGN KEY(jobRequestID) REFERENCES JobRequest(jobRequestID),
+    CONSTRAINT billing_FK2 FOREIGN KEY(payRateID) REFERENCES PayRate(payRateID)
+);
+
+CREATE TABLE ContractorInvoice(
+	invoiceID							INT PRIMARY KEY AUTO_INCREMENT,
+	billingInfoID					INT,
+	invoiceAmount					INT NOT NULL,
+	invoiceCreationDate		DATE NOT NULL,
+	invoiceDueDate				DATE NOT NULL,
+	invoiceStatus					VARCHAR(20) NOT NULL,
+    CONSTRAINT invoice_FK FOREIGN KEY(billingInfoID) REFERENCES BillingInfo(billingInfoID)
+);
+
+INSERT INTO `employee` (`employeeID`, `employeeFirstName`, `employeeLastName`, `employeePhone`, `employeeEmail`, `employeeAddressUnit`, `employeeAddressStreet`, `employeeAddressSuburb`, `employeeAddressPostcode`, `employeeAddressState`, `status`) VALUES
+(1, 'Sam', 'Coianiz', '0422632769', 'coianizs@gmail.com', NULL, '191 Prince Alfred Parade', 'Newport', '2106', 'New South Wales', 1),
+(2, 'Jessica', 'Tailby', '0404227087', 'jessicatailby@gmail.com', '', '191 Prince Alfred Parade', 'Newport', '2106', 'New South Wales', 1),
+(3, 'Patrick', 'Dempsey', '0404040404', 'pdempers@mail.com', '', '279 Hollywood Boulevard', 'Surrey Hills', '2020', 'New South Wales', 1),
+(4, 'Finn', 'The Human', '0294560152', 'finnthehuman@oo.com', '', '1 Treetop Place', 'Ooo', '2000', 'New South Wales', 1),
+(7, 'Claire', 'Palfreyman', '90705228', 'cpalfreyman@outlook.com', '', '86 Bellion Drive', 'Upper Warren', '6258', 'Western Australia', 1),
+(8, 'Claudia', 'Freycinet', '02 4052 0022', 'cfreycinet', '', '1 Kerman Crescent', 'Lowther', '2790', 'New South Wales', 1),
+(9, 'Koby', 'Luttrell', '02 4994 8624', 'kluttrell@gmail.com', '', '24 Hart Street', 'Bunnan', '2337', 'New South Wales', 1),
+(10, 'Xavier', 'Vaude', '02 4918 1661', 'xvaude@yahoo.com', NULL, '23 Webb Road', 'Gateshead', '2290', 'NSW', 1),
+(11, 'test', 'Tester', '99999999', 'test@aol.com', '', '153 Fake St', 'Fakeville', '2000', 'nsw', 1),
+(12, 'asdf', 'asdf', 'asdf', 'asdf', 'asdf', 'sdf', 'asdf', 'asd', 'qld', 0),
+(13, 'tes', 'tes', 'tes', 'tes', 'tes', 'tes', 'tes', 'tes', 'tas', 0),
+(14, 'Angelina', 'Tivey', '(02)6128 5419', 'tivey_a@hotmail.com', '', '18 Moruya Road', 'Mongarlowe', '2622', 'New South Wales', 1),
+(15, 'Adam', 'Heath', '(02) 4225 9760', 'adam_heath_123@live.com', '', '48 Walter Crescent', 'Horsley', '2530', 'New South Wales', 1),
+(16, 'Ben', 'Orchard', '(03) 6293 1314', 'fruityorchard@gmail.com', '', '33 Mayfield Street', 'Dunalley', '7177', 'Tasmania', 1);
+
+--
+-- Triggers `employee`
+--
+DELIMITER $$
+CREATE TRIGGER `employeeStateTrg` BEFORE INSERT ON `employee` FOR EACH ROW BEGIN
+
+IF (new.employeeAddressState = 'NSW') THEN
+SET new.employeeAddressState = 'New South Wales';
+ELSEIF (new.employeeAddressState = "nsw") THEN
+SET new.employeeAddressState = "New South Wales";
+ELSEIF (new.employeeAddressState = "QLD") THEN
+SET new.employeeAddressState = "Queensland";
+ELSEIF new.employeeAddressState = "qld" THEN
+SET new.employeeAddressState = "Queensland";
+ELSEIF new.employeeAddressState = "VIC" THEN
+SET new.employeeAddressState = "Victoria";
+ELSEIF new.employeeAddressState = "vic" THEN
+SET new.employeeAddressState = "Victoria";
+ELSEIF NEW.employeeAddressState = "SA" THEN
+SET NEW.employeeAddressState = "South Australia";
+ELSEIF NEW.employeeAddressState = "sa" THEN
+SET NEW.employeeAddressState = "South Australia";
+ELSEIF NEW.employeeAddressState = "WA" THEN
+SET NEW.employeeAddressState = "Western Australia";
+ELSEIF new.employeeAddressState = "wa" THEN
+SET new.employeeAddressState = "Western Australia";
+ELSEIF new.employeeAddressState = "TAS" THEN
+SET new.employeeAddressState = "Tasmania";
+ELSEIF new.employeeAddressState = "tas" THEN
+SET new.employeeAddressState = "Tasmania";
+ELSEIF new.employeeAddressState = "ACT" THEN
+SET new.employeeAddressState = "Australian Capitol Territory";
+ELSEIF new.employeeAddressState = "act" THEN
+SET new.employeeAddressState = "Australian Capitol Territory";
+ELSEIF new.employeeAddressState = "NT" THEN
+SET new.employeeAddressState = "Northern Territory";
+ELSEIF new.employeeAddressState = 'nt' THEN
+SET new.employeeAddressState = 'Northern Territory';
+END IF;
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `employeeStateUpdateTrg` BEFORE UPDATE ON `employee` FOR EACH ROW BEGIN
+
+IF (new.employeeAddressState = 'NSW') THEN
+SET new.employeeAddressState = 'New South Wales';
+ELSEIF (new.employeeAddressState = "nsw") THEN
+SET new.employeeAddressState = "New South Wales";
+ELSEIF (new.employeeAddressState = "QLD") THEN
+SET new.employeeAddressState = "Queensland";
+ELSEIF new.employeeAddressState = "qld" THEN
+SET new.employeeAddressState = "Queensland";
+ELSEIF new.employeeAddressState = "VIC" THEN
+SET new.employeeAddressState = "Victoria";
+ELSEIF new.employeeAddressState = "vic" THEN
+SET new.employeeAddressState = "Victoria";
+ELSEIF NEW.employeeAddressState = "SA" THEN
+SET NEW.employeeAddressState = "South Australia";
+ELSEIF NEW.employeeAddressState = "sa" THEN
+SET NEW.employeeAddressState = "South Australia";
+ELSEIF NEW.employeeAddressState = "WA" THEN
+SET NEW.employeeAddressState = "Western Australia";
+ELSEIF new.employeeAddressState = "wa" THEN
+SET new.employeeAddressState = "Western Australia";
+ELSEIF new.employeeAddressState = "TAS" THEN
+SET new.employeeAddressState = "Tasmania";
+ELSEIF new.employeeAddressState = "tas" THEN
+SET new.employeeAddressState = "Tasmania";
+ELSEIF new.employeeAddressState = "ACT" THEN
+SET new.employeeAddressState = "Australian Capitol Territory";
+ELSEIF new.employeeAddressState = "act" THEN
+SET new.employeeAddressState = "Australian Capitol Territory";
+ELSEIF new.employeeAddressState = "NT" THEN
+SET new.employeeAddressState = "Northern Territory";
+ELSEIF new.employeeAddressState = 'nt' THEN
+SET new.employeeAddressState = 'Northern Territory';
+END IF;
+END
+$$
+DELIMITER ;
+
+INSERT INTO `coordinator` (`coOrdinatorID`) VALUES
+(3),
+(14),
+(15),
+(16);
+
+INSERT INTO `administrator` (`administratorID`) VALUES
+(1);
+
+
+INSERT INTO `contractor` (`contractorID`) VALUES
+(2),
+(4),
+(7),
+(8),
+(9),
+(11),
+(12),
+(13);
+
+
+
+INSERT INTO `skills` (`skillsID`, `skillsTitle`, `skillsDescription`, `status`) VALUES
+(1, 'Application Installations', 'Common operations performed during software installations include:\r\nMaking sure that necessary system requirements are met\r\nChecking for existing versions of the software\r\nCreating or updating program files and folders\r\nAdding configuration data such as configuration files, Windows registry entries or environment variables\r\nMaking the software accessible to the user, for instance by creating links, shortcuts or bookmarks\r\nConfiguring components that run automatically, such as daemons or Windows ', 1),
+(2, 'Application Support', 'Application Support Analysts support IT services delivered to users within an organisation, enabling the required business processes needed for the business to be successful.  \r\nThese contractors deal with clients both on a business level and IT level of understanding; they act as the technical point of contact to fix their application and systems issues, or incidents as they are known, that disrupt the service they depend upon.', 1),
+(3, 'Data Migration', 'Data migration is the process of transferring data between computer storage types or file formats. It is a key consideration for any system implementation, upgrade, or consolidation.', 1),
+(4, 'Debugging', 'Debugging is the process of finding and resolving of defects that prevent correct operation of computer software or a system.', 1),
+(5, 'Desktop Support', 'To diagnose and resolve software and hardware incidents, including operating systems\r\n(Windows and Mac) and across a range of software applications.\r\nTo assist clients with any logged IT related incident when called upon.\r\nTo take ownership of issues by carrying out problem analysis to implement temporary or\r\npermanent fixes with the aim of restoring service to the customer as soon as possible;\r\nescalating incidents to other support teams where necessary.\r\nTo accurately record, update and docume', 1),
+(6, 'End User Support', 'End user support specialists must diagnose computer hardware, network systems and computer software programs accurately and quickly.\r\nEnd user specialists must use good judgment to determine if they can assist the customer immediately or need to escalate the issue to an appropriate colleague.\r\nEnd user support specialists walk customers through problems, train them to install software packages and respond to questions about network systems. They also handle printing queries, hardware questions', 1),
+(7, 'Hardware Upgrades', 'In computing and consumer electronics an upgrade is generally a replacement of hardware, software or firmware with a newer or better version, in order to bring the system up to date or to improve its characteristics.\r\nThese contractors are able to assist clients with whatever workstation upgrades they have. Whether it be the actual workstations, printers, monitors.', 1),
+(8, 'Software Support', 'Software support services are generally technical support or break/fix services that are delivered for specific software products. These services include revenue derived from long-term technical-support contracts or pay-as-you-go, incident-based support. \r\nSoftware support services typically include remote troubleshooting capabilities, installation assistance and basic usability assistance. Remote troubleshooting capabilities may be delivered via telephone and online communication media or witho', 1),
+(9, 'Software Upgrades', 'Contractors will assists with clients upgrading their software. This service includes testing the new version on the clients system and troubleshooting with end-users any issues that arise from the new version software.', 1),
+(10, 'Testing', 'Software testing is an investigation conducted to provide stakeholders with information about the quality of the product or service under test. Software testing can also provide an objective, independent view of the software to allow the business to appreciate and understand the risks of software implementation. Test techniques include the process of executing a program or application with the intent of finding software bugs (errors or other defects), and verifying that the software product is f', 1),
+(11, 'Data Backup', 'Contractors will assist clients with their data backup. Does not include repeated backups.', 1),
+(12, 'Repeated Backup', 'Contractors will configure the clients system to accept and run a repeated backup. \r\nThis service may or may not include the purchase of data storage, either local devices or server storage offsite.\r\nContractors will test and ensure delivery of backups during off-peak system activity.', 1),
+(13, 'Phone Support', 'General IT support given over the phone. Contractors must have the requisite qualification to have this skill attributed to them.', 1),
+(14, 'Test', 'This is a test to update the skills.', 0),
+(15, 'Test', 'Update', 0),
+(16, 'New Skill', 'a new skill.', 0),
+(17, '', '', 0),
+(18, 'Server Installation', 'Contractor will install server stations for the client. Requires the client to have the physical stations first.', 1),
+(19, 'Server Setup', 'Once the client has the server stations the contractor will setup the environment so the client can use their servers.', 1);
+
+--
+-- Triggers `skills`
+--
+DELIMITER $$
+CREATE TRIGGER `skillStatus_Trg` BEFORE INSERT ON `skills` FOR EACH ROW BEGIN
+    	IF new.status !=1 THEN
+        	SET new.status = 1;
+        END IF;
+    END
+$$
+DELIMITER ;
+
+INSERT INTO `contractorskills` (`skillsID`, `contractorID`, `status`) VALUES
+(1, 2, 1),
+(1, 4, 1),
+(1, 8, 1),
+(1, 11, 1),
+(2, 2, 1),
+(2, 7, 1),
+(2, 8, 1),
+(2, 11, 1),
+(3, 4, 1),
+(3, 8, 1),
+(3, 11, 1),
+(4, 7, 1),
+(4, 8, 1),
+(5, 4, 1),
+(5, 8, 1),
+(6, 2, 1),
+(6, 7, 1),
+(6, 8, 1),
+(7, 2, 1),
+(7, 4, 1),
+(7, 9, 1),
+(8, 2, 1),
+(8, 7, 1),
+(8, 9, 1),
+(9, 4, 1),
+(9, 9, 1),
+(10, 7, 1),
+(10, 9, 1),
+(10, 13, 1),
+(11, 4, 1),
+(11, 9, 1),
+(11, 11, 1),
+(11, 13, 1),
+(12, 2, 1),
+(12, 7, 1),
+(12, 9, 1),
+(12, 11, 1),
+(12, 13, 1),
+(13, 2, 1),
+(13, 4, 1),
+(13, 11, 1),
+(13, 13, 1);
+
+INSERT INTO `login` (`employeeID`, `username`, `loginPassword`) VALUES
+(1, 'scoianiz', 'Coianiz1'),
+(2, 'jtailby', 'Tailby123'),
+(3, 'pdempsey', 'Dempsey1'),
+(4, 'fhuman', 'Finn123'),
+(7, 'cpalfreyman', 'Palfreyman1'),
+(8, 'cfreycinet', 'Freycinet1'),
+(9, 'kluttrell', 'Luttrell1'),
+(14, 'ativey', 'Tivey123'),
+(15, 'aheath', 'Heath123'),
+(16, 'borchard', 'Orchard1');
+
+
+INSERT INTO `client` (`clientID`, `clientFirstName`, `clientLastName`, `clientPhone`, `clientEmail`, `clientFax`, `clientBusinessName`, `status`) VALUES
+(1, 'Reece', 'Tailby', '0422623796', 'talbiy@mail.com', '', 'Tailby Fabrications', 1),
+(2, 'Bob', 'Builder', '0404227087', 'bobbuilder@timmystools.com', 'test', 'Timmys Tools', 1),
+(7, 'Drew', 'Mann', '0298731649', 'mann.d@testies.com.au', '', 'Testy Testicles', 1),
+(8, 'Ohm', 'Igosh', '98753214', 'omg@geemail.com', '', 'Captcha Technologies', 1),
+(9, 'Brad', 'Qwerty', '99999999', 'brad@bobby.com.au', '', 'bobby boo', 1),
+(10, 'Crash', 'Bandicoot', '0278945632', 'crash@ctr.com', '0278945623', 'CTRacing', 1),
+(11, 'Sandra', 'Cummings', '(02) 9979 4159', 'info@artformaus.com.au', '02 9979 4159', 'Art Form', 1),
+(13, 'Fred', 'Durst', '0418549784', 'limpbizkit@aol.com', '', 'Fred\'s Beds', 1),
+(14, 'Case', 'Tester', '02 94560152', 'testcase@testing.com.au', '', 'Test Case Testing', 1);
+
+--
+-- Triggers `client`
+--
+DELIMITER $$
+CREATE TRIGGER `clientLocationDelete_Trig` BEFORE DELETE ON `client` FOR EACH ROW BEGIN
+DELETE FROM clientlocation
+WHERE clientlocation.clientID = old.clientID;
+
+DELETE FROM clientlogin
+WHERE clientlogin.clientID = old.clientID;
+
+DELETE FROM jobrequest
+WHERE jobrequest.clientID = old.clientID;
+
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `clientStatus_Trg` BEFORE INSERT ON `client` FOR EACH ROW BEGIN
+    	IF new.status != 1 THEN
+        	SET new.status = 1;
+      	END IF;
+    END
+$$
+DELIMITER ;
+
+
+INSERT INTO `clientlocation` (`clientLocationID`, `clientID`, `clientLocationUnit`, `clientLocationStreet`, `clientLocationSuburb`, `clientLocationPostcode`, `clientLocationState`, `clientLocationDetails`, `isPrimary`) VALUES
+(9, 1, 'Unit 15', '15 Narabang Way', 'Belrose', '2085', 'New South Wales', 'You have to go all the way around the units, and then when you\'re almost back to Narabang way, turn left and we\'re just on the left after that.', 0),
+(10, 2, 'Level 2, Suite 204', '14 Polo Avenue', 'Mona Vale', '2103', 'New South Wales', 'In the loft above the other thing.', 1),
+(13, 1, '139', 'Polo Avenue', 'Mona Vale', '2103', 'New South Wales', 'The loft upstairs, near another company called North Sails.', 1),
+(14, 7, '', '98 Main Street', 'Plane Plains', '2548', 'New South Wales', '', 0),
+(15, 8, '64', '245 Pitt St', 'Sydney', '2000', 'New South Wales', 'Next to the ANZ building, inbetween that and the Officeworks.', 1),
+(16, 9, '', '456 Street Parade', 'Suburb', '2000', 'Queensland', '', 1),
+(17, 10, '1/52', '987 Parade-Circuit Lane', 'Newville', '6000', 'Tasmania', '', 1),
+(18, 11, 'Shop 6', '76 Darley St', 'Mona Vale', '2103', 'New South Wales', 'Access from Willmette Place', 1),
+(19, 7, 'Suite 45', '14 Main Street', 'Katoomba', '2780', 'New South Wales', '', 1),
+(20, 11, '', '30 Chatsworth Road', 'Bulldog', '2469', 'New South Wales', '', 0),
+(23, 13, '', '47 Ghost Hill Road', 'Scheyville', '2756', 'New South Wales', 'There\'s a dog on the property, don\'t worry, he\'s a sweetie.', 1),
+(24, 14, '', '123 George Street', 'Sydney', '2000', 'New South Wales', '\"Don\'t come here\" can you escape my /wit/', 1);
+
+--
+-- Triggers `clientlocation`
+--
+DELIMITER $$
+CREATE TRIGGER `clientLocationJob_Trg` BEFORE DELETE ON `clientlocation` FOR EACH ROW DELETE FROM jobrequest
+WHERE jobrequest.clientLocationID = clientLocationID
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `clientLocationStateChange` BEFORE INSERT ON `clientlocation` FOR EACH ROW BEGIN
+
+IF (new.clientLocationState = 'NSW') THEN
+SET new.clientLocationState = 'New South Wales';
+ELSEIF (new.clientLocationState = "nsw") THEN
+SET new.clientLocationState = "New South Wales";
+ELSEIF (new.clientLocationState = "QLD") THEN
+SET new.clientLocationState = "Queensland";
+ELSEIF new.clientLocationState = "qld" THEN
+SET new.clientLocationState = "Queensland";
+ELSEIF new.clientLocationState = "VIC" THEN
+SET new.clientLocationState = "Victoria";
+ELSEIF new.clientLocationState = "vic" THEN
+SET new.clientLocationState = "Victoria";
+ELSEIF NEW.clientLocationState = "SA" THEN
+SET NEW.clientLocationState = "South Australia";
+ELSEIF NEW.clientLocationState = "sa" THEN
+SET NEW.clientLocationState = "South Australia";
+ELSEIF NEW.clientLocationState = "WA" THEN
+SET NEW.clientLocationState = "Western Australia";
+ELSEIF new.clientLocationState = "wa" THEN
+SET new.clientLocationState = "Western Australia";
+ELSEIF new.clientLocationState = "TAS" THEN
+SET new.clientLocationState = "Tasmania";
+ELSEIF new.clientLocationState = "tas" THEN
+SET new.clientLocationState = "Tasmania";
+ELSEIF new.clientLocationState = "ACT" THEN
+SET new.clientLocationState = "Australian Capitol Territory";
+ELSEIF new.clientLocationState = "act" THEN
+SET new.clientLocationState = "Australian Capitol Territory";
+ELSEIF new.clientLocationState = "NT" THEN
+SET new.clientLocationState = "Northern Territory";
+ELSEIF new.clientLocationState = 'nt' THEN
+SET new.clientLocationState = 'Northern Territory';
+END IF;
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `clientLocationStateUpdate` BEFORE UPDATE ON `clientlocation` FOR EACH ROW BEGIN
+
+IF (new.clientLocationState = 'NSW') THEN
+SET new.clientLocationState = 'New South Wales';
+ELSEIF (new.clientLocationState = "nsw") THEN
+SET new.clientLocationState = "New South Wales";
+ELSEIF (new.clientLocationState = "QLD") THEN
+SET new.clientLocationState = "Queensland";
+ELSEIF new.clientLocationState = "qld" THEN
+SET new.clientLocationState = "Queensland";
+ELSEIF new.clientLocationState = "VIC" THEN
+SET new.clientLocationState = "Victoria";
+ELSEIF new.clientLocationState = "vic" THEN
+SET new.clientLocationState = "Victoria";
+ELSEIF NEW.clientLocationState = "SA" THEN
+SET NEW.clientLocationState = "South Australia";
+ELSEIF NEW.clientLocationState = "sa" THEN
+SET NEW.clientLocationState = "South Australia";
+ELSEIF NEW.clientLocationState = "WA" THEN
+SET NEW.clientLocationState = "Western Australia";
+ELSEIF new.clientLocationState = "wa" THEN
+SET new.clientLocationState = "Western Australia";
+ELSEIF new.clientLocationState = "TAS" THEN
+SET new.clientLocationState = "Tasmania";
+ELSEIF new.clientLocationState = "tas" THEN
+SET new.clientLocationState = "Tasmania";
+ELSEIF new.clientLocationState = "ACT" THEN
+SET new.clientLocationState = "Australian Capitol Territory";
+ELSEIF new.clientLocationState = "act" THEN
+SET new.clientLocationState = "Australian Capitol Territory";
+ELSEIF new.clientLocationState = "NT" THEN
+SET new.clientLocationState = "Northern Territory";
+ELSEIF new.clientLocationState = 'nt' THEN
+SET new.clientLocationState = 'Northern Territory';
+END IF;
+END
+$$
+DELIMITER ;
+
+INSERT INTO `clientlogin` (`clientID`, `clientUsername`, `clientPassword`) VALUES
+(1, 'rtailby', 'Tailby123'),
+(2, 'bbuilder', 'Builder1'),
+(7, 'dmann', 'Mann123'),
+(8, 'oigosh', 'Igosh123'),
+(9, 'Bobbyboo1', 'Bobbyboo1'),
+(10, 'crashbandicoot', 'Bandicoot1'),
+(11, 'SandraCummings', 'Artform101'),
+(13, 'fdurst', 'Durst123'),
+(14, 'ctester', 'Tester1');
+
+
+INSERT INTO `days` (`dayName`, `dayNumber`) VALUES
+('Friday', 5),
+('Monday', 1),
+('Saturday', 6),
+('Sunday', 7),
+('Thursday', 4),
+('Tuesday', 2),
+('Wednesday', 3);
+
+INSERT INTO `shifts` (`shiftID`, `dayName`, `morningOrAfternoon`, `shiftDescription`, `startTime`, `endTime`, `otherShiftDetails`) VALUES
+(3, 'Monday', 'Morning', '', '07:30:00', '12:00:00', NULL),
+(4, 'Monday', 'Afternoon', '', '12:30:00', '17:00:00', NULL),
+(11, 'Tuesday', 'Morning', '', '07:30:00', '12:00:00', NULL),
+(12, 'Tuesday', 'Afternoon', '', '12:30:00', '17:00:00', NULL),
+(13, 'Wednesday', 'Morning', '', '07:30:00', '12:00:00', NULL),
+(17, 'Wednesday', 'Afternoon', '', '12:30:00', '17:00:00', NULL),
+(18, 'Thursday', 'Morning', '', '07:30:00', '12:00:00', NULL),
+(19, 'Thursday', 'Afternoon', '', '12:30:00', '17:00:00', NULL),
+(20, 'Friday', 'Morning', '', '07:30:00', '12:00:00', NULL),
+(21, 'Friday', 'Afternoon', '', '12:30:00', '17:00:00', NULL),
+(22, 'Saturday', 'Morning', '', '08:30:00', '12:00:00', NULL),
+(23, 'Saturday', 'Afternoon', '', '13:00:00', '16:30:00', NULL),
+(24, 'Sunday', 'Morning', '', '09:30:00', '12:30:00', NULL),
+(25, 'Sunday', 'Afternoon', '', '13:30:00', '16:00:00', NULL);
+
+INSERT INTO `payrate` (`payRateID`, `payRateDescription`, `payRateDollars`) VALUES
+(1, 'Full-Time base rate.', 30),
+(2, 'Full-Time overtime rate.', 45),
+(3, 'Part-Time base rate.', 35),
+(4, 'Part-Time overtime rate.', 52),
+(5, 'Emergency call-out rate.', 70);
+
+INSERT INTO `jobrequest` (`jobRequestID`, `clientID`, `clientLocationID`, `coordinatorID`, `contractorID`, `skillsID`, `jobDescription`, `jobEntryDate`, `jobRequiredDate`, `jobCompletedDate`, `status`) VALUES
+(29, 10, 17, NULL, 7, 12, ' There\'s something I need you to do.', '2017-05-29', '2017-05-31', '0000-00-00', 'Completed'),
+(30, 13, 23, NULL, 8, 6, ' People do things to other people and sometime I don\'t understand why they do them. Please help me understand. I won\'t last long.', '2017-05-29', '2017-06-01', NULL, 'Marked for Completion'),
+(31, 13, 23, 15, 9, 11, 'Dog threw up on the computer. Please clean and recover what is possible.', '2017-05-31', '2017-06-01', NULL, 'Assigned'),
+(32, 11, 18, 14, 7, 10, 'This is a test.', '2017-05-31', '2017-06-22', '2017-06-07', 'Completed'),
+(33, 1, 9, NULL, NULL, 1, ' Please install Adobe Acrobat Reader.', '2017-06-05', '2017-06-09', NULL, 'Submitted'),
+(34, 1, 13, NULL, 4, 13, ' I need someone to help me get my emails into the computer.', '2017-06-05', '2017-06-12', NULL, 'Assigned'),
+(35, 2, 10, NULL, 4, 9, ' Please update Adobe Acrobat Reader.', '2017-06-05', '2017-06-07', NULL, 'Assigned'),
+(36, 7, 14, NULL, 9, 7, ' I\'ve got some server stations that I would like installed into the racks in my server room.', '2017-06-05', '2017-06-09', NULL, 'Assigned'),
+(37, 7, 19, NULL, 4, 11, ' Can you please do a full backup of the servers that we have online at the moment, before you complete the server installation.', '2017-06-05', '2017-06-07', NULL, 'Assigned'),
+(38, 8, 15, NULL, NULL, 9, ' We have a new Android app going live so we would like someone to go through all our devices and make sure the new version is on them.', '2017-06-05', '2017-06-23', NULL, 'Submitted'),
+(39, 9, 16, NULL, 8, 6, ' Things are broken! Please help!', '2017-06-05', '2017-06-13', '2017-06-07', 'Completed'),
+(40, 10, 17, NULL, NULL, 10, ' I need someone to make sure the tags are correct(?) I don\'t know what that means but the OH&S Office has told me to do it.', '2017-06-05', '2017-06-11', NULL, 'Submitted'),
+(41, 11, 20, NULL, 8, 3, ' I\'ve got an old Apple Mac and I wan\'t the documents on my new Apple Mac.', '2017-06-05', '2017-06-14', NULL, 'Assigned'),
+(42, 11, 18, NULL, 9, 8, ' My Apple Mac isn\'t working properly. Officeworks told me I can\'t use a Pages document to print there. What does that mean?', '2017-06-05', '2017-06-30', NULL, 'Assigned'),
+(43, 13, 23, NULL, 9, 7, ' Please update Adobe Acrobat', '2017-06-05', '2017-06-06', '2017-06-07', 'Completed'),
+(44, 13, 23, 16, NULL, 18, 'Client would like his server stations installed into some racks that he has.\r\n---Note---\r\nThere will probably be a follow up job requesting the setup of the server software.', '2017-06-06', '2017-06-09', NULL, 'Submitted'),
+(45, 10, 17, 15, NULL, 10, 'It\'s all good', '2017-06-04', '2017-06-08', NULL, 'Submitted'),
+(46, 1, 13, NULL, NULL, 19, ' Please set up my server stuff.', '2017-06-07', '2017-06-09', NULL, 'Submitted'),
+(47, 1, 13, NULL, 2, 1, ' install adobe acrobat', '2017-06-07', '2017-06-09', '2017-06-07', 'Completed'),
+(48, 13, 23, 16, NULL, 10, 'install adobe acrobat', '2017-06-07', '2017-06-08', NULL, 'Submitted'),
+(49, 11, 20, NULL, 7, 8, ' Job.', '2017-06-07', '2017-06-08', '2017-06-08', 'Completed'),
+(50, 11, 20, 14, NULL, 13, 'Call Sandra to walk her through the setup of a new printer, shouldn\'t take longer than 20 minutes.', '2017-06-03', '2017-06-09', NULL, 'Submitted'),
+(51, 13, 23, 16, NULL, 8, 'What is going on with the dates in this thing?', '2017-06-01', '2017-06-09', NULL, 'Submitted'),
+(52, 8, 15, 15, NULL, 6, 'doo doo dee', '2017-06-08', '2017-06-09', NULL, 'Submitted');
+
+--
+-- Triggers `jobrequest`
+--
+DELIMITER $$
+CREATE TRIGGER `JobRequestCompletedDateTrg` BEFORE UPDATE ON `jobrequest` FOR EACH ROW BEGIN
+if new.status = 'Completed'
+then set new.jobCompletedDate = CURDATE();
+end if;
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `JobRequestDateRequestTrg` BEFORE INSERT ON `jobrequest` FOR EACH ROW BEGIN
+    IF NEW.jobRequiredDate < CURRENT_DATE
+    THEN
+    SIGNAL SQLSTATE '10000'
+        SET MESSAGE_TEXT = 'Date required must be after today.';
+    END IF;
+    IF NEW.jobEntryDate != CURRENT_DATE
+    THEN SET NEW.jobEntryDate = CURRENT_DATE;
+    END IF;
+END
+$$
+DELIMITER ;
